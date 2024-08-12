@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response
 from EmotionDetection.emotion_detection import emotion_detector
 
 app = Flask("IBM SWE Final Project")
@@ -13,7 +13,30 @@ def emo_detector():
     
     ### Query the emotion_detector API
     nlp_text = request.args["textToAnalyze"]
+
+    if len(nlp_text) == 0:
+        req_emotions_blank = {
+                        'anger': None,
+                        'disgust': None,
+                        'fear': None,
+                        'joy': None,
+                        'sadness': None,
+                        'dominant_emotion': None}
+        
+        resp = make_response( req_emotions_blank )
+        resp.status_code = 400
+    
+        return resp
+
+
     emotion_dict = emotion_detector(nlp_text)
+
+    try:
+        if emotion_dict['dominant_emotion'] is None:
+            return {"message": "Invalid tex! Please try again!"}
+        
+    except KeyError:
+        return {"message": "Invalid tex! Please try again!"}
 
 
     ### Build the text response
