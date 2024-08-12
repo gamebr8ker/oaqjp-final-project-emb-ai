@@ -1,3 +1,7 @@
+""" This module connects to the Watson NLP Emotion Predict API.
+    User input (text_to_analyze) returns a dict of emotional analysis for the input.
+"""
+
 import requests
 import json
 
@@ -5,7 +9,6 @@ import json
 # Placeholder
 #text_to_analyze = "I love this new technology."
 #text_to_analyze = "I am so happy I am doing this."
-
 
 def emotion_detector(text_to_analyze):
     """
@@ -21,25 +24,25 @@ def emotion_detector(text_to_analyze):
 
     req = requests.post(url=watson_url, headers=headers, json=input_data)
 
+    # Added error handling for status_code == 400 (corresponds to blank user input)
+    if req.status_code == 400:
+        req_emotions_blank = {
+                'anger': None,
+                'disgust': None,
+                'fear': None,
+                'joy': None,
+                'sadness': None,
+                'dominant_emotion': None}
+
+        return req_emotions_blank
+
     # Convert the request response to JSON
     req_json = json.loads(req.text)
     
     # Parse 'emotion' dict from the request response
-    # Try to parse response. Blank text won't have emotionPredictions.
-    try:
-        req_emotions = req_json['emotionPredictions'][0]['emotion']
+    req_emotions = req_json['emotionPredictions'][0]['emotion']
 
-    except:
-        req_emotions_blank = {
-                        'anger': None,
-                        'disgust': None,
-                        'fear': None,
-                        'joy': None,
-                        'sadness': None,
-                        'dominant_emotion': None}
-        
-        return req_emotions_blank
-
+    
 
     # Find the dominant Emotion and Score (highest-scoring emotion from dict)
     highest_score = 0
@@ -53,7 +56,3 @@ def emotion_detector(text_to_analyze):
     req_emotions['dominant_emotion'] = dominant_emote
 
     return req_emotions
-
-
-#test1 = emotion_detector(text_to_analyze)
-#print(test1)
