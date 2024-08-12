@@ -13,23 +13,11 @@ def emo_detector():
     
     ### Query the emotion_detector API
     nlp_text = request.args["textToAnalyze"]
+    emotion_dict = emotion_detector(nlp_text)
 
     if len(nlp_text) == 0:
-        req_emotions_blank = {
-                        'anger': None,
-                        'disgust': None,
-                        'fear': None,
-                        'joy': None,
-                        'sadness': None,
-                        'dominant_emotion': None}
-        
-        resp = make_response( req_emotions_blank )
-        resp.status_code = 400
-    
-        return resp
-
-
-    emotion_dict = emotion_detector(nlp_text)
+        return emotion_dict
+        #return Response(f"{emotion_detector('')}", status=400, mimetype='application/json')
 
     try:
         if emotion_dict['dominant_emotion'] is None:
@@ -58,6 +46,14 @@ def emo_detector():
 
 
     return response_text
+
+
+
+@app.errorhandler(400)
+def blank_entry(error):
+    #resp = make_response( emotion_detector(''), 400)
+    #return resp
+    return Response(f"{emotion_detector('')}", status=400, mimetype='application/json')
 
 
 if __name__ == "__main__":

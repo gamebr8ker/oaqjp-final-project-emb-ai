@@ -25,7 +25,20 @@ def emotion_detector(text_to_analyze):
     req_json = json.loads(req.text)
     
     # Parse 'emotion' dict from the request response
-    req_emotions = req_json['emotionPredictions'][0]['emotion']
+    # Try to parse response. Blank text won't have emotionPredictions.
+    try:
+        req_emotions = req_json['emotionPredictions'][0]['emotion']
+
+    except:
+        req_emotions_blank = {
+                        'anger': None,
+                        'disgust': None,
+                        'fear': None,
+                        'joy': None,
+                        'sadness': None,
+                        'dominant_emotion': None}
+        
+        return req_emotions_blank
 
 
     # Find the dominant Emotion and Score (highest-scoring emotion from dict)
